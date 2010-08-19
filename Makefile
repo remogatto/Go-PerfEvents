@@ -1,13 +1,11 @@
 include $(GOROOT)/src/Make.$(GOARCH)
 
-TARG=perf
+TARG=⚛perf
 
 GOFILES=\
 	src/perf.go\
 	src/perf_$(GOARCH).go\
 	src/types.$(O).go\
-
-CLEANFILES+=perf
 
 include $(GOROOT)/src/Make.pkg
 
