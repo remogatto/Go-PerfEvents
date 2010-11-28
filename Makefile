@@ -4,8 +4,9 @@ TARG=⚛perf
 
 GOFILES=\
 	src/perf.go\
+	src/perf_$(GOOS).go\
 	src/perf_$(GOOS)_$(GOARCH).go\
-	src/types.$(O).go\
+	src/types.$(O).go
 
 include $(GOROOT)/src/Make.pkg
 

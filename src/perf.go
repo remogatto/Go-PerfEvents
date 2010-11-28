@@ -2,7 +2,6 @@ package perf
 
 import (
 	"os"
-	"syscall"
 	"unsafe"
 )
 
@@ -12,10 +11,6 @@ type PerfCounter struct {
 	fd   map[int](*os.File) // File descriptors for each OS thread, initially empty
 }
 
-
-func newPerfCounter() *PerfCounter {
-	return &PerfCounter{attr: Attr{}, fd: make(map[int](*os.File))}
-}
 
 func (attr *Attr) init_HW(event uint, exclude_user bool, exclude_kernel bool) {
 	attr.Type = TYPE_HARDWARE
@@ -39,31 +34,60 @@ func (attr *Attr) open(pid int) (counter *os.File, err os.Error) {
 }
 
 
-// Returns a new performance counter for counting CPU cycles
+// Returns a new performance counter for counting CPU cycles,
+// or nil and an error in case of a failure. A failure can occur
+// if the OS is not Linux.
 //
 // @param user   Specifies whether to count cycles spent in user-space
 // @param kernel Specifies whether to count cycles spent in kernel-space
-func NewCounter_CpuCycles(user, kernel bool) *PerfCounter {
-	counter := newPerfCounter()
+func NewCounter_CpuCycles(user, kernel bool) (*PerfCounter, os.Error) {
+	counter, err := newPerfCounterObject()
+	if err != nil {
+		return nil, err
+	}
+
 	counter.attr.init_HW(HW_CPU_CYCLES, !user, !kernel)
-	return counter
+	return counter, nil
 }
 
-// Returns a new performance counter for counting retired instructions
+// Returns a new performance counter for counting retired instructions,
+// or nil and an error in case of a failure. A failure can occur
+// if the OS is not Linux.
 //
 // @param user   Specifies whether to count instructions executed in user-space
 // @param kernel Specifies whether to count instructions executed in kernel-space
-func NewCounter_Instructions(user, kernel bool) *PerfCounter {
-	counter := newPerfCounter()
+func NewCounter_Instructions(user, kernel bool) (*PerfCounter, os.Error) {
+	counter, err := newPerfCounterObject()
+	if err != nil {
+		return nil, err
+	}
+
 	counter.attr.init_HW(HW_INSTRUCTIONS, !user, !kernel)
-	return counter
+	return counter, nil
+}
+
+// Returns the thread ID of the calling OS thread
+func (c *PerfCounter) Gettid() int {
+	if c == nil {
+		// It is more comprehensible to panic here,
+		// rather than potentially panicing in gettid()
+		panic("nil performance-counter object")
+	}
+
+	return gettid()
 }
 
 // Reads the current value of the performance counter
 func (c *PerfCounter) Read() (n uint64, err os.Error) {
+	if c == nil {
+		// It is more comprehensible to report an error here,
+		// rather than potentially panicing in gettid()
+		return 0, os.NewError("nil performance-counter object")
+	}
+
 	var fd *os.File
 	{
-		tid := syscall.Gettid()
+		tid := gettid()
 
 		var present bool
 		fd, present = c.fd[tid]
