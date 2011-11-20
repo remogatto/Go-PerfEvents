@@ -1,6 +1,6 @@
 include $(GOROOT)/src/Make.inc
 
-TARG=⚛perf
+TARG=atom/perf
 
 GOFILES=\
 	src/perf.go\
