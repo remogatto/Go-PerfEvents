@@ -1,16 +1,15 @@
 package perf
 
 import (
+	"errors"
 	"os"
 	"unsafe"
 )
-
 
 type PerfCounter struct {
 	attr Attr
 	fd   map[int](*os.File) // File descriptors for each OS thread, initially empty
 }
-
 
 func (attr *Attr) init_HW(event uint, exclude_user bool, exclude_kernel bool) {
 	attr.Type = TYPE_HARDWARE
@@ -29,10 +28,9 @@ func (attr *Attr) init_HW(event uint, exclude_user bool, exclude_kernel bool) {
 	attr.Flags = flags
 }
 
-func (attr *Attr) open(pid int) (counter *os.File, err os.Error) {
+func (attr *Attr) open(pid int) (counter *os.File, err error) {
 	return sys_perf_counter_open(attr, /*pid*/ pid, /*cpu*/ -1, /*group_fd*/ -1, /*flags*/ 0)
 }
-
 
 // Returns a new performance counter for counting CPU cycles,
 // or nil and an error in case of a failure. A failure can occur
@@ -40,7 +38,7 @@ func (attr *Attr) open(pid int) (counter *os.File, err os.Error) {
 //
 // @param user   Specifies whether to count cycles spent in user-space
 // @param kernel Specifies whether to count cycles spent in kernel-space
-func NewCounter_CpuCycles(user, kernel bool) (*PerfCounter, os.Error) {
+func NewCounter_CpuCycles(user, kernel bool) (*PerfCounter, error) {
 	counter, err := newPerfCounterObject()
 	if err != nil {
 		return nil, err
@@ -56,7 +54,7 @@ func NewCounter_CpuCycles(user, kernel bool) (*PerfCounter, os.Error) {
 //
 // @param user   Specifies whether to count instructions executed in user-space
 // @param kernel Specifies whether to count instructions executed in kernel-space
-func NewCounter_Instructions(user, kernel bool) (*PerfCounter, os.Error) {
+func NewCounter_Instructions(user, kernel bool) (*PerfCounter, error) {
 	counter, err := newPerfCounterObject()
 	if err != nil {
 		return nil, err
@@ -78,11 +76,11 @@ func (c *PerfCounter) Gettid() int {
 }
 
 // Reads the current value of the performance counter
-func (c *PerfCounter) Read() (n uint64, err os.Error) {
+func (c *PerfCounter) Read() (n uint64, err error) {
 	if c == nil {
 		// It is more comprehensible to report an error here,
 		// rather than potentially panicing in gettid()
-		return 0, os.NewError("nil performance-counter object")
+		return 0, errors.New("nil performance-counter object")
 	}
 
 	var fd *os.File
@@ -117,8 +115,8 @@ func (c *PerfCounter) Read() (n uint64, err os.Error) {
 	return
 }
 
-func (c *PerfCounter) Close() os.Error {
-	var err os.Error = nil
+func (c *PerfCounter) Close() error {
+	var err error = nil
 
 	for _, file := range c.fd {
 		err2 := file.Close()
