@@ -1,3 +1,6 @@
+/*
+A Go interface to performance events available in recent Linux kernels.
+*/
 package perf
 
 import (
