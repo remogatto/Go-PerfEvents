@@ -7,9 +7,9 @@ import (
 )
 
 func sys_perf_counter_open(attr *Attr, pid, cpu, group_fd int, flags uint64) (counter *os.File, err error) {
-	attr.Size = ATTR_SIZE
+	attr.Size = _ATTR_SIZE
 
-	r1, _, e := syscall.Syscall6(SYS_PERF_OPEN,
+	r1, _, e := syscall.Syscall6(_SYS_PERF_OPEN,
 		uintptr(unsafe.Pointer(attr)),
 		uintptr(pid),
 		uintptr(cpu),

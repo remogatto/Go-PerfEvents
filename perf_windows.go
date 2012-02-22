@@ -2,7 +2,7 @@ package perf
 
 import "errors"
 
-func newPerfCounterObject() (*PerfCounter, error) {
+func newCounterObject() (*Counter, error) {
 	return nil, errors.New("there is no support for Linux performance counters on Windows")
 }
 

@@ -9,25 +9,15 @@ import (
 	"unsafe"
 )
 
-type PerfCounter struct {
+type Counter struct {
 	attr Attr
 	fd   map[int](*os.File) // File descriptors for each OS thread, initially empty
 }
 
-func (attr *Attr) init_HW(event uint, exclude_user bool, exclude_kernel bool) {
-	attr.Type = TYPE_HARDWARE
-	attr.Size = ATTR_SIZE
-	attr.Config = uint64(event)
-
-	var flags uint64 = 0
-	if exclude_user {
-		flags |= FLAG_EXCLUDE_USER
-	}
-	if exclude_kernel {
-		flags |= FLAG_EXCLUDE_KERNEL
-	}
-	flags |= FLAG_EXCLUDE_HV
-	flags |= FLAG_EXCLUDE_IDLE
+func (attr *Attr) init(eventType uint32, event, flags uint64) {
+	attr.Type = eventType
+	attr.Size = _ATTR_SIZE
+	attr.Config = event
 	attr.Flags = flags
 }
 
@@ -35,40 +25,64 @@ func (attr *Attr) open(pid int) (counter *os.File, err error) {
 	return sys_perf_counter_open(attr, /*pid*/ pid, /*cpu*/ -1, /*group_fd*/ -1, /*flags*/ 0)
 }
 
-// Returns a new performance counter for counting CPU cycles,
-// or nil and an error in case of a failure. A failure can occur
-// if the OS is not Linux.
-//
-// @param user   Specifies whether to count cycles spent in user-space
-// @param kernel Specifies whether to count cycles spent in kernel-space
-func NewCounter_CpuCycles(user, kernel bool) (*PerfCounter, error) {
-	counter, err := newPerfCounterObject()
+// Returns a new performance counter, or nil and an error.
+// An error can be returned if the OS is not Linux.
+func NewCounter(eventType uint32, event, flags uint64) (*Counter, error) {
+	counter, err := newCounterObject()
 	if err != nil {
 		return nil, err
 	}
 
-	counter.attr.init_HW(HW_CPU_CYCLES, !user, !kernel)
+	counter.attr.init(eventType, event, flags)
+	return counter, nil
+}
+
+// Returns a new performance counter for counting CPU cycles,
+// or nil and an error. An error can be returned if the OS is not Linux.
+//
+// @param user   Specifies whether to count cycles spent in user-space
+// @param kernel Specifies whether to count cycles spent in kernel-space
+func NewCounter_CpuCycles(user, kernel bool) (*Counter, error) {
+	counter, err := newCounterObject()
+	if err != nil {
+		return nil, err
+	}
+
+	var flags uint64
+	if !user {
+		flags |= FLAG_EXCLUDE_USER
+	}
+	if !kernel {
+		flags |= FLAG_EXCLUDE_KERNEL
+	}
+	counter.attr.init(TYPE_HARDWARE, HW_CPU_CYCLES, flags)
 	return counter, nil
 }
 
 // Returns a new performance counter for counting retired instructions,
-// or nil and an error in case of a failure. A failure can occur
-// if the OS is not Linux.
+// or nil and an error. An error can be returned if the OS is not Linux.
 //
 // @param user   Specifies whether to count instructions executed in user-space
 // @param kernel Specifies whether to count instructions executed in kernel-space
-func NewCounter_Instructions(user, kernel bool) (*PerfCounter, error) {
-	counter, err := newPerfCounterObject()
+func NewCounter_Instructions(user, kernel bool) (*Counter, error) {
+	counter, err := newCounterObject()
 	if err != nil {
 		return nil, err
 	}
 
-	counter.attr.init_HW(HW_INSTRUCTIONS, !user, !kernel)
+	var flags uint64
+	if !user {
+		flags |= FLAG_EXCLUDE_USER
+	}
+	if !kernel {
+		flags |= FLAG_EXCLUDE_KERNEL
+	}
+	counter.attr.init(TYPE_HARDWARE, HW_INSTRUCTIONS, flags)
 	return counter, nil
 }
 
 // Returns the thread ID of the calling OS thread
-func (c *PerfCounter) Gettid() int {
+func (c *Counter) Gettid() int {
 	if c == nil {
 		// It is more comprehensible to panic here,
 		// rather than potentially panicing in gettid()
@@ -78,8 +92,8 @@ func (c *PerfCounter) Gettid() int {
 	return gettid()
 }
 
-// Reads the current value of the performance counter
-func (c *PerfCounter) Read() (n uint64, err error) {
+// Reads the current value of the performance event counter
+func (c *Counter) Read() (n uint64, err error) {
 	if c == nil {
 		// It is more comprehensible to report an error here,
 		// rather than potentially panicing in gettid()
@@ -118,7 +132,7 @@ func (c *PerfCounter) Read() (n uint64, err error) {
 	return
 }
 
-func (c *PerfCounter) Close() error {
+func (c *Counter) Close() error {
 	var err error = nil
 
 	for _, file := range c.fd {
