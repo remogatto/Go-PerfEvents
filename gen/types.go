@@ -8,17 +8,15 @@ const _SYS_PERF_OPEN = C.__NR_perf_event_open
 
 // Event types
 const (
-	TYPE_HARDWARE          = C.PERF_TYPE_HARDWARE
-	TYPE_SOFTWARE          = C.PERF_TYPE_SOFTWARE
-	TYPE_TRACEPOINT        = C.PERF_TYPE_TRACEPOINT
-	TYPE_HW_CACHE          = C.PERF_TYPE_HW_CACHE
-	TYPE_RAW               = C.PERF_TYPE_RAW
-	TYPE_BREAKPOINT        = C.PERF_TYPE_BREAKPOINT
+	TYPE_HARDWARE   = C.PERF_TYPE_HARDWARE
+	TYPE_SOFTWARE   = C.PERF_TYPE_SOFTWARE
+	TYPE_TRACEPOINT = C.PERF_TYPE_TRACEPOINT
+	TYPE_HW_CACHE   = C.PERF_TYPE_HW_CACHE
+	TYPE_RAW        = C.PERF_TYPE_RAW
+	TYPE_BREAKPOINT = C.PERF_TYPE_BREAKPOINT
 )
 
-/*
- * Generalized hardware events
- */
+// Generalized hardware events
 const (
 	HW_CPU_CYCLES          = C.PERF_COUNT_HW_CPU_CYCLES
 	HW_INSTRUCTIONS        = C.PERF_COUNT_HW_INSTRUCTIONS
@@ -29,13 +27,11 @@ const (
 	HW_BUS_CYCLES          = C.PERF_COUNT_HW_BUS_CYCLES
 )
 
-/*
- * Generalized hardware cache events:
- *
- *       { L1-D, L1-I, LLC, ITLB, DTLB, BPU, NODE } x
- *       { read, write, prefetch } x
- *       { accesses, misses }
- */
+// Generalized hardware cache events:
+//
+//       { L1-D, L1-I, LLC, ITLB, DTLB, BPU, NODE } x
+//       { read, write, prefetch } x
+//       { accesses, misses }
 const (
 	HW_CACHE_L1D           = C.PERF_COUNT_HW_CACHE_L1D
 	HW_CACHE_L1I           = C.PERF_COUNT_HW_CACHE_L1I
@@ -51,22 +47,20 @@ const (
 	HW_CACHE_RESULT_MISS   = C.PERF_COUNT_HW_CACHE_RESULT_MISS
 )
 
-/*
- * Special "software" events provided by the kernel, even if the hardware
- * does not support performance events. These events measure various
- * physical and sw events of the kernel (and allow the profiling of them as
- * well):
- */
+// Special "software" events provided by the kernel, even if the hardware
+// does not support performance events. These events measure various
+// physical and sw events of the kernel (and allow the profiling of them as
+// well):
 const (
-	SW_CPU_CLOCK           = C.PERF_COUNT_SW_CPU_CLOCK
-	SW_TASK_CLOCK          = C.PERF_COUNT_SW_TASK_CLOCK
-	SW_PAGE_FAULTS         = C.PERF_COUNT_SW_PAGE_FAULTS
-	SW_CONTEXT_SWITCHES    = C.PERF_COUNT_SW_CONTEXT_SWITCHES
-	SW_CPU_MIGRATIONS      = C.PERF_COUNT_SW_CPU_MIGRATIONS
-	SW_PAGE_FAULTS_MIN     = C.PERF_COUNT_SW_PAGE_FAULTS_MIN
-	SW_PAGE_FAULTS_MAJ     = C.PERF_COUNT_SW_PAGE_FAULTS_MAJ
-	SW_ALIGNMENT_FAULTS    = C.PERF_COUNT_SW_ALIGNMENT_FAULTS
-	SW_EMULATION_FAULTS    = C.PERF_COUNT_SW_EMULATION_FAULTS
+	SW_CPU_CLOCK        = C.PERF_COUNT_SW_CPU_CLOCK
+	SW_TASK_CLOCK       = C.PERF_COUNT_SW_TASK_CLOCK
+	SW_PAGE_FAULTS      = C.PERF_COUNT_SW_PAGE_FAULTS
+	SW_CONTEXT_SWITCHES = C.PERF_COUNT_SW_CONTEXT_SWITCHES
+	SW_CPU_MIGRATIONS   = C.PERF_COUNT_SW_CPU_MIGRATIONS
+	SW_PAGE_FAULTS_MIN  = C.PERF_COUNT_SW_PAGE_FAULTS_MIN
+	SW_PAGE_FAULTS_MAJ  = C.PERF_COUNT_SW_PAGE_FAULTS_MAJ
+	SW_ALIGNMENT_FAULTS = C.PERF_COUNT_SW_ALIGNMENT_FAULTS
+	SW_EMULATION_FAULTS = C.PERF_COUNT_SW_EMULATION_FAULTS
 )
 
 const (

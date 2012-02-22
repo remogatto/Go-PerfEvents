@@ -15,9 +15,7 @@ const (
 	TYPE_BREAKPOINT = 0x5
 )
 
-/*
- * Generalized hardware events
- */
+// Generalized hardware events
 const (
 	HW_CPU_CYCLES          = 0x0
 	HW_INSTRUCTIONS        = 0x1
@@ -28,13 +26,11 @@ const (
 	HW_BUS_CYCLES          = 0x6
 )
 
-/*
- * Generalized hardware cache events:
- *
- *       { L1-D, L1-I, LLC, ITLB, DTLB, BPU, NODE } x
- *       { read, write, prefetch } x
- *       { accesses, misses }
- */
+// Generalized hardware cache events:
+//
+//       { L1-D, L1-I, LLC, ITLB, DTLB, BPU, NODE } x
+//       { read, write, prefetch } x
+//       { accesses, misses }
 const (
 	HW_CACHE_L1D           = 0x0
 	HW_CACHE_L1I           = 0x1
@@ -50,12 +46,10 @@ const (
 	HW_CACHE_RESULT_MISS   = 0x1
 )
 
-/*
- * Special "software" events provided by the kernel, even if the hardware
- * does not support performance events. These events measure various
- * physical and sw events of the kernel (and allow the profiling of them as
- * well):
- */
+// Special "software" events provided by the kernel, even if the hardware
+// does not support performance events. These events measure various
+// physical and sw events of the kernel (and allow the profiling of them as
+// well):
 const (
 	SW_CPU_CLOCK        = 0x0
 	SW_TASK_CLOCK       = 0x1
