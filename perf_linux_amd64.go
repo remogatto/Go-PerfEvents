@@ -18,8 +18,8 @@ func sys_perf_counter_open(attr *Attr, pid, cpu, group_fd int, flags uint64) (co
 		0)
 
 	if e != 0 {
-		return nil, os.NewSyscallError("perf counter open", int(e))
+		return nil, os.NewSyscallError("perf counter open", e)
 	}
 
-	return os.NewFile(int(r1), "<perf counter>"), nil
+	return os.NewFile(r1, "<perf counter>"), nil
 }
